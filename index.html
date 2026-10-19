@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TiendaHub · Plataforma multi-vendedor (prototipo)</title>
+<style>
+:root{color-scheme:light;--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mu:#5d6675;--bd:#e1e5ea;--ac:#0b7a5b;--acx:#fff;--wr:#b45309;--er:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1318;--card:#181e26;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#2a323d;--ac:#34d399;--acx:#06281d;--wr:#fbbf24;--er:#f87171}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1318;--card:#181e26;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#2a323d;--ac:#34d399;--acx:#06281d;--wr:#fbbf24;--er:#f87171}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;align-items:center}
+nav b{margin-right:auto;font-size:17px}
+button,input,select{font:inherit;color:inherit}
+button{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.on,button.p{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+button.d{color:var(--er)}
+main{max-width:1000px;margin:0 auto;padding:16px 14px 40px}
+h2{margin:6px 0 12px}h3{margin:0 0 6px}
+.g{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.k{font-size:24px;font-weight:700}.mu{color:var(--mu);font-size:13px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+input,select{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;max-width:100%}
+.r{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.t{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;border:1px solid var(--bd)}
+.ok{color:var(--ac)}.wr{color:var(--wr)}.er{color:var(--er)}
+.tl{border-left:2px solid var(--bd);margin-left:6px;padding-left:14px}.tl div{margin:0 0 10px;position:relative}.tl div:before{content:"";position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--ac)}
+.pl{border:2px solid var(--bd)}.pl.sel{border-color:var(--ac)}
+.n{background:var(--bg);border-radius:8px;padding:10px;margin:10px 0;font-size:13px;color:var(--mu)}
+</style></head><body>
+<nav><b>TiendaHub</b><span id="tabs"></span><button id="th" title="Tema">◐</button></nav>
+<main id="m"></main>
+<script>
+const $=s=>document.querySelector(s),money=n=>'$'+Number(n).toFixed(2);
+const PLANS=[{id:'basico',n:'Básico',p:19,f:3,l:50},{id:'pro',n:'Pro',p:49,f:1.5,l:500},{id:'escala',n:'Escala',p:99,f:.5,l:5000}];
+const S={view:'inicio',plan:'pro',sid:1,store:1,cart:[],last:null,
+sellers:[{id:1,name:'Café del Valle',email:'hola@cafevalle.mx',plan:'pro',st:'activo',paid:'2026-10-01'},{id:2,name:'Artesanías Luna',email:'luna@mail.com',plan:'basico',st:'pendiente',paid:'2026-10-18'}],
+products:[{id:1,sid:1,n:'Café de altura 500g',p:14,s:40},{id:2,sid:1,n:'Prensa francesa',p:22,s:3},{id:3,sid:2,n:'Rebozo tejido',p:35,s:8}],
+orders:[]};
+const ST=['Pago confirmado','Preparando envío','Enviado','En camino','Entregado'];
+const sel=id=>S.sellers.find(x=>x.id==id),pl=id=>PLANS.find(x=>x.id==id);
+const TABS=[['inicio','Inicio / Planes'],['tienda','Tienda'],['rastreo','Rastreo'],['vendedor','Panel vendedor'],['admin','Panel central']];
+function go(v){S.view=v;draw()}
+function draw(){
+$('#tabs').innerHTML=TABS.map(t=>`<button class="${S.view==t[0]?'on':''}" onclick="go('${t[0]}')">${t[1]}</button>`).join(' ');
+$('#m').innerHTML=({inicio,tienda,rastreo,vendedor,admin})[S.view]()}
+function inicio(){return `<h2>Vende en línea con tu propia tienda y panel</h2><p class="mu">Elige un plan, paga tu inscripción y el equipo central aprueba tu tienda.</p>
+<div class="g">${PLANS.map(p=>`<div class="c pl ${S.plan==p.id?'sel':''}" onclick="S.plan='${p.id}';draw()"><h3>${p.n}</h3><div class="k">${money(p.p)}<span class="mu">/mes</span></div><div class="mu">Comisión ${p.f}% · hasta ${p.l} productos</div></div>`).join('')}</div>
+<div class="c" style="margin-top:12px"><h3>Inscribir mi tienda</h3><div class="r"><input id="nm" placeholder="Nombre de la tienda"><input id="em" placeholder="Correo"><button class="p" onclick="reg()">Pagar ${money(pl(S.plan).p)} e inscribirme</button></div>
+<div class="n">Prototipo: el pago es simulado. En producción esto crea una suscripción en Stripe/Mercado Pago y el vendedor queda "pendiente" hasta que lo apruebes.</div></div>`}
+function reg(){const n=$('#nm').value.trim(),e=$('#em').value.trim();if(!n||!/\S+@\S+/.test(e))return alert('Completa nombre y un correo válido');
+const id=Math.max(...S.sellers.map(x=>x.id))+1;S.sellers.push({id,name:n,email:e,plan:S.plan,st:'pendiente',paid:new Date().toISOString().slice(0,10)});alert('Inscripción pagada. Tu tienda está pendiente de aprobación en el Panel central.');go('admin')}
+function tienda(){const act=S.sellers.filter(x=>x.st=='activo');if(!act.find(x=>x.id==S.store))S.store=act[0]?.id;
+const ps=S.products.filter(p=>p.sid==S.store);const tot=S.cart.reduce((a,c)=>a+c.p*c.q,0);
+return `<h2>Tienda pública</h2><div class="r"><select onchange="S.store=+this.value;S.cart=[];draw()">${act.map(x=>`<option value="${x.id}" ${x.id==S.store?'selected':''}>${x.name}</option>`).join('')}</select></div>
+<div class="g">${ps.map(p=>`<div class="c"><h3>${p.n}</h3><div class="k">${money(p.p)}</div><div class="mu ${p.s<5?'wr':''}">${p.s?p.s+' en stock':'Agotado'}</div><button class="p" ${p.s?'':'disabled'} onclick="add(${p.id})">Agregar al carrito</button></div>`).join('')||'<p class="mu">Sin productos.</p>'}</div>
+<div class="c" style="margin-top:12px"><h3>Carrito</h3>${S.cart.map(c=>`<div class="r">${c.n} × ${c.q} — ${money(c.p*c.q)} <button class="d" onclick="S.cart=S.cart.filter(x=>x.id!=${c.id});draw()">Quitar</button></div>`).join('')||'<p class="mu">Vacío</p>'}
+${S.cart.length?`<div class="k">${money(tot)}</div><div class="r"><input id="dir" placeholder="Dirección de envío"><button class="p" onclick="pay()">Pagar (simulado)</button></div>`:''}</div>
+${S.last?`<div class="c" style="margin-top:12px">Pedido creado. Tu código de rastreo: <b>${S.last}</b> <button onclick="go('rastreo')">Rastrear</button></div>`:''}`}
+function add(id){const p=S.products.find(x=>x.id==id),c=S.cart.find(x=>x.id==id);const q=c?c.q:0;if(q>=p.s)return alert('No hay más stock');c?c.q++:S.cart.push({id,n:p.n,p:p.p,q:1});draw()}
+function pay(){const d=$('#dir').value.trim();if(!d)return alert('Escribe la dirección');
+const total=S.cart.reduce((a,c)=>a+c.p*c.q,0),s=sel(S.store),fee=+(total*pl(s.plan).f/100).toFixed(2);
+S.cart.forEach(c=>S.products.find(p=>p.id==c.id).s-=c.q);
+const code='TH'+Math.random().toString(36).slice(2,8).toUpperCase();
+S.orders.push({code,sid:S.store,items:S.cart.map(c=>c.n+' ×'+c.q).join(', '),total,fee,dir:d,step:0,ev:[[ST[0],new Date().toLocaleString()]]});
+S.last=code;S.cart=[];draw()}
+function rastreo(){return `<h2>Rastrea tu envío</h2><div class="r"><input id="cd" placeholder="Código (ej. ${S.last||'TH1A2B3C'})" value="${S.last||''}"><button class="p" onclick="track()">Buscar</button></div><div id="tr"></div>`}
+function track(){const o=S.orders.find(x=>x.code==$('#cd').value.trim().toUpperCase());
+$('#tr').innerHTML=o?`<div class="c"><h3>${o.code} · <span class="ok">${ST[o.step]}</span></h3><div class="mu">${o.items} · ${o.dir}</div><div class="tl" style="margin-top:12px">${o.ev.slice().reverse().map(e=>`<div><b>${e[0]}</b><div class="mu">${e[1]}</div></div>`).join('')}</div></div>`:'<p class="er">Código no encontrado.</p>'}
+function vendedor(){const act=S.sellers.filter(x=>x.st=='activo');if(!act.find(x=>x.id==S.sid))S.sid=act[0]?.id;const s=sel(S.sid);if(!s)return '<h2>Panel vendedor</h2><p class="mu">Aún no hay vendedores aprobados.</p>';
+const ps=S.products.filter(p=>p.sid==s.id),os=S.orders.filter(o=>o.sid==s.id),ing=os.reduce((a,o)=>a+o.total-o.fee,0),low=ps.filter(p=>p.s<5);
+return `<h2>Panel de ${s.name}</h2><div class="r"><select onchange="S.sid=+this.value;draw()">${act.map(x=>`<option value="${x.id}" ${x.id==s.id?'selected':''}>${x.name}</option>`).join('')}</select><span class="t">Plan ${pl(s.plan).n} · próximo cobro ${money(pl(s.plan).p)}</span></div>
+<div class="g"><div class="c"><div class="mu">Ingresos netos</div><div class="k">${money(ing)}</div></div><div class="c"><div class="mu">Pedidos</div><div class="k">${os.length}</div></div><div class="c"><div class="mu">Productos / límite</div><div class="k">${ps.length}/${pl(s.plan).l}</div></div></div>
+${low.length?`<div class="n wr">⚠ Stock bajo: ${low.map(p=>p.n+' ('+p.s+')').join(', ')}</div>`:''}
+<div class="c" style="margin-top:12px"><h3>Inventario</h3><div class="tw"><table><tr><th>Producto</th><th>Precio</th><th>Stock</th></tr>${ps.map(p=>`<tr><td>${p.n}</td><td>${money(p.p)}</td><td><input type="number" min="0" value="${p.s}" style="width:80px" onchange="S.products.find(x=>x.id==${p.id}).s=Math.max(0,+this.value)"></td></tr>`).join('')}</table></div>
+<div class="r"><input id="pn" placeholder="Nuevo producto"><input id="pp" type="number" placeholder="Precio" style="width:90px"><input id="ps" type="number" placeholder="Stock" style="width:90px"><button class="p" onclick="addp(${s.id})">Agregar</button></div></div>
+<div class="c" style="margin-top:12px"><h3>Pedidos y envíos</h3><div class="tw"><table><tr><th>Código</th><th>Detalle</th><th>Total</th><th>Estado</th><th></th></tr>${os.map(o=>`<tr><td>${o.code}</td><td>${o.items}</td><td>${money(o.total)}</td><td>${ST[o.step]}</td><td>${o.step<4?`<button onclick="adv('${o.code}')">Avanzar → ${ST[o.step+1]}</button>`:'✓'}</td></tr>`).join('')||'<tr><td colspan=5 class="mu">Sin pedidos aún. Compra algo en la Tienda.</td></tr>'}</table></div></div>`}
+function addp(sid){const n=$('#pn').value.trim(),p=+$('#pp').value,q=+$('#ps').value;const s=sel(sid);
+if(!n||!(p>0)||q<0||isNaN(q))return alert('Nombre, precio y stock válidos');
+if(S.products.filter(x=>x.sid==sid).length>=pl(s.plan).l)return alert('Límite del plan alcanzado: sube de plan');
+S.products.push({id:Date.now(),sid,n,p,s:q});draw()}
+function adv(c){const o=S.orders.find(x=>x.code==c);o.step++;o.ev.push([ST[o.step],new Date().toLocaleString()]);draw()}
+function admin(){const act=S.sellers.filter(x=>x.st=='activo'),mrr=act.reduce((a,x)=>a+pl(x.plan).p,0),com=S.orders.reduce((a,o)=>a+o.fee,0);
+return `<h2>Panel central (superadmin)</h2><div class="g"><div class="c"><div class="mu">Ingreso recurrente (MRR)</div><div class="k">${money(mrr)}</div></div><div class="c"><div class="mu">Comisiones</div><div class="k">${money(com)}</div></div><div class="c"><div class="mu">Vendedores activos</div><div class="k">${act.length}</div></div><div class="c"><div class="mu">Pendientes</div><div class="k ${S.sellers.some(x=>x.st=='pendiente')?'wr':''}">${S.sellers.filter(x=>x.st=='pendiente').length}</div></div></div>
+<div class="c" style="margin-top:12px"><h3>Vendedores</h3><div class="tw"><table><tr><th>Tienda</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Acciones</th></tr>${S.sellers.map(x=>`<tr><td>${x.name}</td><td>${x.email}</td><td>${pl(x.plan).n}</td><td><span class="t ${x.st=='activo'?'ok':x.st=='pendiente'?'wr':'er'}">${x.st}</span></td><td>${x.st!='activo'?`<button class="p" onclick="st(${x.id},'activo')">Aprobar</button>`:`<button class="d" onclick="st(${x.id},'suspendido')">Suspender</button>`}</td></tr>`).join('')}</table></div></div>`}
+function st(id,v){sel(id).st=v;draw()}
+$('#th').onclick=()=>{const r=document.documentElement,d=getComputedStyle(r).colorScheme.includes('dark');r.dataset.theme=d?'light':'dark'};
+draw();
+</script></body></html>

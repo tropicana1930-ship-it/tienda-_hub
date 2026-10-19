@@ -1,0 +1,20 @@
+name: Validar prototipo
+on:
+  push:
+  pull_request:
+jobs:
+  html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobar estructura HTML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          doc = Path('index.html').read_text(encoding='utf-8')
+          assert '<!DOCTYPE html>' in doc
+          assert '<title>TiendaHub' in doc
+          assert 'function draw()' in doc
+          assert '</html>' in doc
+          print('Estructura básica correcta')
+          PY
