@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum Role { BUYER SELLER ADMIN }
+enum StoreStatus { PENDING ACTIVE SUSPENDED }
+enum OrderStatus { PENDING_PAYMENT PAID FULFILLING SHIPPED DELIVERED CANCELED REFUNDED }
+enum PaymentStatus { PENDING APPROVED REJECTED REFUNDED }
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String
+  role Role @default(BUYER)
+  createdAt DateTime @default(now())
+  stores Store[]
+  orders Order[]
+}
+model Store {
+  id String @id @default(cuid())
+  slug String @unique
+  name String
+  status StoreStatus @default(PENDING)
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id])
+  products Product[]
+  orders Order[]
+  createdAt DateTime @default(now())
+  @@index([ownerId])
+}
+model Product {
+  id String @id @default(cuid())
+  storeId String
+  store Store @relation(fields: [storeId], references: [id])
+  name String
+  priceMinor Int
+  currency String @default("USD")
+  stock Int @default(0)
+  active Boolean @default(false)
+  orderItems OrderItem[]
+  @@index([storeId, active])
+}
+model Order {
+  id String @id @default(cuid())
+  buyerId String
+  buyer User @relation(fields: [buyerId], references: [id])
+  storeId String
+  store Store @relation(fields: [storeId], references: [id])
+  status OrderStatus @default(PENDING_PAYMENT)
+  totalMinor Int
+  currency String @default("USD")
+  createdAt DateTime @default(now())
+  items OrderItem[]
+  payments Payment[]
+  @@index([storeId, status])
+}
+model OrderItem {
+  id String @id @default(cuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+  quantity Int
+  unitPriceMinor Int
+}
+model Payment {
+  id String @id @default(cuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  provider String @default("mercadopago")
+  providerPaymentId String? @unique
+  status PaymentStatus @default(PENDING)
+  amountMinor Int
+  currency String
+  createdAt DateTime @default(now())
+}
+model WebhookEvent {
+  id String @id
+  provider String
+  processedAt DateTime @default(now())
+}
